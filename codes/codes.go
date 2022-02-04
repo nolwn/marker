@@ -23,49 +23,98 @@ const (
 	white
 )
 
-type Code struct {
-	options []int8
-	err     string
+type colorCode struct {
+	bright     bool
+	background bool
+	color      int8
 }
 
-func (c Code) Color(color string) Code {
-	switch color {
-	case "black":
-		c.options = append(c.options, black)
-	case "red":
-		c.options = append(c.options, red)
-	case "green":
-		c.options = append(c.options, green)
-	case "yellow":
-		c.options = append(c.options, yellow)
-	case "blue":
-		c.options = append(c.options, blue)
-	case "magenta":
-		c.options = append(c.options, magenta)
-	case "cyan":
-		c.options = append(c.options, cyan)
-	case "white":
-		c.options = append(c.options, white)
-	case "reset":
-		c.options = append(c.options, reset)
-	case "default":
-		c.options = append(c.options, def)
-	default:
-		c.err = "invalid value provided"
-	}
+func Color() *colorCode {
+	return &colorCode{}
+}
+
+func (c *colorCode) Black() *colorCode {
+	c.color = black
 
 	return c
 }
 
-func (c Code) Value() string {
-	optString := ""
-	for i, opt := range c.options {
-		if i > 0 {
-			optString += ";"
-		}
+func (c *colorCode) Red() *colorCode {
+	c.color = red
 
-		optString += fmt.Sprint(opt)
+	return c
+}
+
+func (c *colorCode) Green() *colorCode {
+	c.color = green
+
+	return c
+}
+
+func (c *colorCode) Yellow() *colorCode {
+	c.color = yellow
+
+	return c
+}
+
+func (c *colorCode) Blue() *colorCode {
+	c.color = blue
+
+	return c
+}
+
+func (c *colorCode) Magenta() *colorCode {
+	c.color = magenta
+
+	return c
+}
+
+func (c *colorCode) Cyan() *colorCode {
+	c.color = cyan
+
+	return c
+}
+
+func (c *colorCode) White() *colorCode {
+	c.color = white
+
+	return c
+}
+
+func (c *colorCode) Default() *colorCode {
+	c.color = def
+
+	return c
+}
+
+func (c *colorCode) Reset() *colorCode {
+	c.color = reset
+
+	return c
+}
+
+func (c *colorCode) Background() *colorCode {
+	c.background = true
+
+	return c
+}
+
+func (c *colorCode) Bright() *colorCode {
+	c.bright = true
+
+	return c
+}
+
+func (c *colorCode) Value() string {
+	color := c.color
+
+	if c.bright {
+		color += 60
 	}
 
-	return fmt.Sprintf("%s%sm", csi, optString)
+	if c.background {
+		color += 10
+	}
+
+	return fmt.Sprintf("%s%dm", csi, color)
 }
