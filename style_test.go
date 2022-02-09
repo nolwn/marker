@@ -41,7 +41,10 @@ func TestBrightBackgroundColor(t *testing.T) {
 	value := fmt.Sprint(style)
 
 	if value != "\x1b[106m" {
-		t.Fatalf("expected bright cyan background escape code, but received %s", value[1:])
+		t.Fatalf(
+			"expected bright cyan background escape code, but received %s",
+			value[1:],
+		)
 	}
 }
 
@@ -55,8 +58,72 @@ func TestBackgroundAndForeground(t *testing.T) {
 		t.Fatalf("expected to be able to parse codes, but received error: %s", err)
 	}
 
+	if len(values) != 2 {
+		t.Fatalf("expected to have two codes but received %d", len(values))
+	}
+
 	for _, v := range []int8{45, 34} {
-		contains(values, v)
+		if !contains(values, v) {
+			t.Fatalf("expected to be able to parse codes, but received error: %s", value[1:])
+		}
+	}
+}
+
+func TestEffect(t *testing.T) {
+	style := marker.Style().Effect(marker.Dim)
+	value := fmt.Sprint(style)
+
+	if value != "\x1b[2m" {
+		t.Fatalf("expected dim escape code, but received %s", value[1:])
+	}
+}
+
+func TestEffectColorAndBackground(t *testing.T) {
+	style := marker.Style().Effect(
+		marker.Underline,
+	).Background(
+		marker.Red,
+	).Color(
+		marker.BrtGreen,
+	)
+
+	value := fmt.Sprint(style)
+
+	values, err := parseCodeValues(value)
+
+	if err != nil {
+		t.Fatalf("expected to be able to parse codes, but received error: %s", value[1:])
+	}
+
+	if len(values) != 3 {
+		t.Fatalf("expected to have three codes but received %d", len(values))
+	}
+
+	for _, v := range []int8{41, 4, 92} {
+		if !contains(values, v) {
+			t.Fatalf("expected %s but got these codes: %v", value[1:], values)
+		}
+	}
+}
+
+func TestBackgroundAndEffect(t *testing.T) {
+	style := marker.Style().Background(marker.BrtWhite).Effect(marker.Blinking)
+	value := fmt.Sprint(style)
+
+	values, err := parseCodeValues(value)
+
+	if err != nil {
+		t.Fatalf("expected to be able to parse codes, but received error: %s", value[1:])
+	}
+
+	if len(values) != 2 {
+		t.Fatalf("expected to have two codes but received: %d", len(values))
+	}
+
+	for _, v := range []int8{107, 5} {
+		if !contains(values, v) {
+			t.Fatalf("expected %s but got these codes: %v", value[1:], values)
+		}
 	}
 }
 
@@ -81,9 +148,9 @@ func parseCodeValues(code string) (values []int8, err error) {
 		if err != nil {
 			return nil, err
 		}
-	}
 
-	values = append(values, int8(value))
+		values = append(values, int8(value))
+	}
 
 	return values, nil
 }
