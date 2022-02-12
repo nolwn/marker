@@ -127,6 +127,15 @@ func TestBackgroundAndEffect(t *testing.T) {
 	}
 }
 
+func TestWrite(t *testing.T) {
+	str := marker.Style().Color(marker.Blue).Write("This is some text")
+	expected := fmt.Sprintf("%sThis is some text%s", marker.Style().Color(marker.Blue), marker.Reset())
+
+	if str != expected {
+		t.Fatalf("expected %s but received: %s", expected, str)
+	}
+}
+
 func contains(values []int8, value int8) bool {
 	for _, v := range values {
 		if v == value {
